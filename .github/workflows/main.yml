@@ -29,7 +29,7 @@ jobs:
           strip target/release/pic2lcd
           mkdir -p release
           tar -C ./target/release/ -czvf ./release/pic2lcd-mac.tar.gz ./pic2lcd
-      - name: Build Release Linux
+      - name: Build Release Linux Deb
         if: matrix.os == 'ubuntu-latest'
         run: |
           cargo install cargo-deb
@@ -37,12 +37,18 @@ jobs:
           strip target/release/pic2lcd
           mkdir -p release
           mv target/debian/*.deb ./release/pic2lcd-linux.deb
+      - name: Build Release Linux AUR
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          strip target/release/pic2lcd
+          mkdir -p release
           cargo install cargo-aur
           cargo aur
           mv *.tar.gz ./release/pic2lcd-arch-linux.tar.gz
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          name: Release ${{ steps.Build.outputs.version }}
           prerelease: false
           draft: false
           files: |

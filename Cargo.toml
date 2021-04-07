@@ -1,0 +1,19 @@
+[package]
+name = "pic2lcd"
+version = "0.1.0"
+authors = ["VersBinarii <versbinarii@gmail.com>"]
+edition = "2018"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/VersBinarii/pic2lcd"
+homepage = "https://github.com/VersBinarii/pic2lcd"
+keywords = ["LCD", "cli-tool","image-converter", "image"]
+description = "Convert images to LCD friendly format"
+categories = ["development-tools", "command-line-utilities"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+structopt = "0.3"
+clap = "2.33"
+image = "0.23"

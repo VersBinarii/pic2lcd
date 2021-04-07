@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+ 
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - name: Build
+        run: |
+          cargo build --release
+          echo "::set-output name=version::$(target/release/pic2lcd --version)"
+
+      - name: Build Release Mac
+        if: matrix.os == 'macos-latest'
+        run: |
+          strip target/release/pic2lcd
+          mkdir -p release
+          tar -C ./target/release/ -czvf ./release/pic2lcd-mac.tar.gz ./pic2lcd
+      - name: Build Release Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cargo install cargo-deb
+          cargo deb
+          strip target/release/pic2lcd
+          mkdir -p release
+          mv target/debian/*.deb ./release/pic2lcd-linux.deb
+          cargo install cargo-aur
+          cargo aur
+          mv *.tar.gz ./release/pic2lcd-arch-linux.tar.gz
+      - name: Release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.Build.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload darwin artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/pic2lcd-mac.tar.gz
+          asset_name: pic2lcd-mac.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload Arch artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/pic2lcd-arch-linux.tar.gz
+          asset_name: pic2lcd-arch-linux.tar.gz
+          asset_content_type: application/gzip
+      - name: Upload Deb artifacts
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/pic2lcd-linux.deb
+          asset_name: pic2lcd-linux.deb
+          asset_content_type: application/vnd.debian.binary-package
+
+

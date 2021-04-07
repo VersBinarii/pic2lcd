@@ -2,6 +2,12 @@
 Command line tool for converting images to LCD friendly format
 
 # Installation
+
+## Precompiled binaries
+There are precompiled binaries available for 
+MacOS, Arch Linux, Debian and Ubuntu available in [release section](https://github.com/VersBinarii/pic2lcd/releases).
+
+## From source using cargo
 ```
 git clone https://github.com/VersBinarii/pic2lcd
 cd pic2lcd

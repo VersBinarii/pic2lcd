@@ -20,6 +20,7 @@ jobs:
           toolchain: stable
           profile: minimal
       - name: Build
+        id: version
         run: |
           cargo build --release
           echo "::set-output name=version::$(target/release/pic2lcd --version)"
@@ -48,7 +49,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: Release ${{ steps.Build.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
           prerelease: false
           draft: false
           files: |
